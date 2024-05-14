@@ -32,31 +32,34 @@ def copy_wtf():
             return
 
         # Validate the configuration format
-        if not config.has_section('Settings') or not config.has_option('Settings', 'SaveDirectory'):
+        if not config.has_section('Settings') or not config.has_option('Settings', 'WoWDirectory'):
             toast(error_title, 'Invalid configuration format. Please check your options.ini file.', icon=icon_path)
             return
 
         # Get the path to the WoW folder from options.ini
-        save_directory = config.get('Settings', 'SaveDirectory')
+        save_directory = config.get('Settings', 'WoWDirectory')
         wtf_folder = os.path.join(save_directory, 'WTF')
 
         # Check if the WoW folder exists at the given path
         if os.path.exists(wtf_folder):
             # Get the current date for the folder name
-            current_date = datetime.datetime.now().strftime('%d-%m-%Y')
+            current_date = datetime.datetime.now().strftime('%m-%d-%Y')
             
-            # Target for saved WTFs (folder for the current date)
-            saved_wtfs_folder = os.path.join(active_dir, 'Saved WTFs', f"WTF_{current_date}")
+            # Base folder name for saved WTFs (folder for the current date)
+            saved_wtfs_folder = os.path.join(active_dir, 'Saved WTFs', f"WTF_{current_date}.zip")
 
             # Check if the folder for today's date already exists
             index = 0
             while os.path.exists(saved_wtfs_folder):
                 index += 1
-                saved_wtfs_folder = os.path.join(active_dir, 'Saved WTFs', f"WTF_{current_date} -{index}")
+                saved_wtfs_folder = os.path.join(active_dir, 'Saved WTFs', f"WTF_{current_date} -{index}.zip")
 
-            # Copy the entire WTF folder into Saved WTFs
-            shutil.copytree(wtf_folder, saved_wtfs_folder)
+            # Remove the ".zip" search term
+            saved_wtfs_folder = saved_wtfs_folder[:-4]
 
+            # Zip the WTF folder
+            shutil.make_archive(saved_wtfs_folder, 'zip', wtf_folder)
+            
             # Success notification
             toast(title, f'WTF Folder saved successfully as {os.path.basename(saved_wtfs_folder)}.', icon=icon_path)
 
